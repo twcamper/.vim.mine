@@ -1,0 +1,75 @@
+" work around linux gui F10 problem by making it a nice safe refresh
+"
+" https://bugs.launchpad.net/ubuntu/+source/vim/+bug/702314?comments=all
+"
+if has("gui_gtk2") || has("gui_gtk") || has("gui_gnome")
+  map <F10> <c-L>
+endif
+
+" turn off toolbar
+set guioptions-=T
+
+" remap command key
+" " " (override settings under ~/.vim/janus/vim)
+"
+" tools/janus/after/plugin/NERD_commenter.vim
+" NERDCommenter mappings
+call janus#add_mapping('nerdcommenter', 'map', '<A-/>', '<plug>NERDCommenterToggle<CR>')
+call janus#add_mapping('nerdcommenter', 'imap', '<A-/>', '<Esc><plug>NERDCommenterToggle<CR>i')
+
+" langs/rspec/plugin/vim-rspec.vim
+" Cmd-Shift-R for RSpec
+nmap <A-R> :RunSpec<CR>
+" Cmd-Shift-L for RSpec Current Line
+nmap <A-L> :RunSpecLine<CR>
+" Cmd-Shift-E for RSpec previous spec
+nmap <A-E> :RerunSpec<CR>
+"
+" core/before/plugin/mappings.vim
+" Map command-[ and command-] to indenting or outdenting
+" while keeping the original selection in visual mode
+vmap <A-]> >gv
+vmap <A-[> <gv
+
+nmap <A-]> >>
+nmap <A-[> <<
+
+omap <A-]> >>
+omap <A-[> <<
+
+imap <A-]> <Esc>>>i
+imap <A-[> <Esc><<i
+
+" Bubble single lines
+nmap <A-Up> [e
+nmap <A-Down> ]e
+nmap <A-k> [e
+nmap <A-j> ]e
+
+" Bubble multiple lines
+vmap <A-Up> [egv
+vmap <A-Down> ]egv
+vmap <A-k> [egv
+vmap <A-j> ]egv
+
+" Map Command-# to switch tabs
+map  <A-0> 0gt
+imap <A-0> <Esc>0gt
+map  <A-1> 1gt
+imap <A-1> <Esc>1gt
+map  <A-2> 2gt
+imap <A-2> <Esc>2gt
+map  <A-3> 3gt
+imap <A-3> <Esc>3gt
+map  <A-4> 4gt
+imap <A-4> <Esc>4gt
+map  <A-5> 5gt
+imap <A-5> <Esc>5gt
+map  <A-6> 6gt
+imap <A-6> <Esc>6gt
+map  <A-7> 7gt
+imap <A-7> <Esc>7gt
+map  <A-8> 8gt
+imap <A-8> <Esc>8gt
+map  <A-9> 9gt
+imap <A-9> <Esc>9gt
