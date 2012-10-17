@@ -39,16 +39,16 @@ set smartindent
 set t_Co=256    " terminal colors
 
 " guard for vim.tiny
-if has("g:colors_name")
-  color koehler
-  " the intent here is to override the settings in
-  " /usr/share/vim/vim73/colors/koehler.vim, but
-  " I'm not sure that it's legal.  We may have to create a whole new color
-  " file
-  "hi StatusLine     ctermfg=black ctermbg=white$
-  "hi StatusLineNC   cterm=bold ctermfg=black$
-  "hi StatusLine     cterm=reverse
+if has("cindent")
+  "color koehler
+  "" override /usr/share/vim/vim73/colors/koehler.vim
+  "hi StatusLine     cterm=reverse,bold
   "hi StatusLineNC   cterm=reverse
+
+  color desert  " cuc (cursorcolumn) doesn't work so well with this theme
+  " override /usr/share/vim/vim73/colors/desert.vim
+  hi StatusLine     ctermfg=red ctermbg=white
+
 endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
