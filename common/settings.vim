@@ -47,7 +47,7 @@ if has("cindent")
 
   color desert  " cuc (cursorcolumn) doesn't work so well with this theme
   " override /usr/share/vim/vim73/colors/desert.vim
-  hi StatusLine     ctermfg=red ctermbg=white
+  hi StatusLine     ctermfg=green ctermbg=white
 
 endif
 
