@@ -17,9 +17,9 @@ is_mac()
   [[ `uname -s` = 'Darwin' ]]
 }
 
-local_install()
+install_under_my_home()
 {
-  return 0
+  return 12
   save $HOME
   if is_linux;then
     if has_janus;then
@@ -43,23 +43,28 @@ local_install()
 
 global_install()
 {
-  return 1
+  if is_linux;then
+    # save ???
+    sudo ln -s $HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
+    sudo ln -s $HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
+  fi
+  if is_mac;then
+    # save ???
+    sudo ln -s $HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
+  fi
+}
+
+install_for_all_users()
+{
+  return 13
   # global_save  # ???
   if has_janus;then
     echo 'We have Janus!'
-    # 1 - local_install
+    # 1 - install_under_my_home
     # 2 - make symlinks for root  -- do we save here?
     # 3 - make symlinks and chown them for /home/everbody-else  -- do we save here?
   else
-    if is_linux;then
-      # save ???
-      sudo ln -s $HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
-      sudo ln -s $HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
-    fi
-    if is_mac;then
-      # save ???
-      sudo ln -s $HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
-    fi
+    global_install
   fi
 }
 
@@ -69,8 +74,7 @@ save()
   for t in $LOCAL_TARGETS
   do
     path=$HOME/$t
-    if [ -e "$path" ]
-    then
+    if [ -e "$path" ];then
       mv $path $path.old
     fi
   done
@@ -82,11 +86,9 @@ clean()
   for t in $LOCAL_TARGETS
   do
     path=$HOME/$t
-    if [ -e $path ]
-    then
+    if [ -e $path ];then
       #echo $path.old
-      if [ -e "$path.old" ]
-      then
+      if [ -e "$path.old" ];then
         mv $path.old $path
       else
         rm $path
@@ -97,16 +99,17 @@ clean()
 
 clean_global()
 {
-  echo clean_global
+  echo clean global
 }
 
 INSTALL_SCOPE=$1
 
 case $INSTALL_SCOPE in
-  local ) local_install
+  self ) install_under_my_home
     ;;
-  global ) global_install
+  all[-_]users ) install_for_all_users
     ;;
-  * ) echo "Usage:  ./installer.sh global|local"
+  * ) echo "Usage:  ./installer.sh all_users|self"
+    exit 1
     ;;
 esac
