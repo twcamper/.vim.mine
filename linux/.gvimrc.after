@@ -1,13 +1,6 @@
-" work around linux gui F10 problem by making it a nice safe refresh
-"
-" https://bugs.launchpad.net/ubuntu/+source/vim/+bug/702314?comments=all
-"
-if has("gui_gtk2") || has("gui_gtk") || has("gui_gnome")
-  map <F10> <c-L>
+if filereadable(expand("~/.vim.mine/linux/gvim.settings.vim"))
+  source ~/.vim.mine/linux/gvim.common/settings.vim
 endif
-
-" turn off toolbar
-set guioptions-=T
 
 " remap command key
 " " " (override settings under ~/.vim/janus/vim)
