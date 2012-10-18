@@ -38,7 +38,6 @@ install_under_my_home()
       echo foo foo
     fi
   fi
-
 }
 
 global_install()

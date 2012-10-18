@@ -1,3 +1,4 @@
+" This file is used when janus is installed.
 if filereadable(expand("~/.vim.mine/common/settings.vim"))
   source ~/.vim.mine/common/settings.vim
 endif

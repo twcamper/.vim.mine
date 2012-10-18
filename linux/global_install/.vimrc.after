@@ -1,5 +1,0 @@
-" 'common/settings.vim' mappings and options are linked to /etc/vim/vimrc.local
-" in the case of a global install on linux.
-if filereadable(expand("~/.vim.mine/common/settings.after_janus.vim"))
-  source ~/.vim.mine/common/settings.after_janus.vim
-endif
