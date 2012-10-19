@@ -120,6 +120,7 @@ case $ALL_ARGS_AS_A_STRING in
     install_for_all_users
     ;;
   * )
-    echo "Usage:  ./installer.sh [clean] all_users|self"
+    echo Usage:
+    echo "       $ ./installer.sh [clean] all_users|self"
     exit 1
 esac
