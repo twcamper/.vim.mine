@@ -19,12 +19,11 @@ is_mac()
 
 install_under_my_home()
 {
-  return 12
   save $HOME
   if is_linux;then
     if has_janus;then
-      ln -s $HOME/.vim.mine/linux/local_install/.vimrc $HOME/.vimrc
-      ln -s $HOME/.vim.mine/linux/local_install/.vimrc.after $HOME/.vimrc.after
+      ln -s $HOME/.vim.mine/linux/.vimrc $HOME/.vimrc
+      ln -s $HOME/.vim.mine/linux/.vimrc.after $HOME/.vimrc.after
       ln -s $HOME/.vim.mine/linux/.gvimrc.after $HOME/.gvimrc.after
     else
       ln -s $HOME/.vim.mine/common/settings.vim $HOME/.vimrc
@@ -33,9 +32,9 @@ install_under_my_home()
   fi
   if is_mac;then
     if has_janus;then
-      ln -s $HOME/.vim.mine/linux/local_install/.vimrc.after
+      ln -s $HOME/.vim.mine/mac/.vimrc.after $HOME/.vimrc.after
     else
-      echo foo foo
+      ln -s $HOME/.vim.mine/mac/.vimrc $HOME/.vimrc
     fi
   fi
 }
@@ -74,7 +73,7 @@ save()
   do
     path=$HOME/$t
     if [ -e "$path" ];then
-      mv $path $path.old
+      mv -v $path $path.old
     fi
   done
 }
@@ -86,29 +85,41 @@ clean()
   do
     path=$HOME/$t
     if [ -e $path ];then
-      #echo $path.old
       if [ -e "$path.old" ];then
-        mv $path.old $path
+        mv -v $path.old $path
       else
-        rm $path
+        rm -v $path
       fi
     fi
   done
 }
 
-clean_global()
+clean_all()
 {
   echo clean global
 }
 
-INSTALL_SCOPE=$1
+###########################
+#
+# EXECUTE AN ACTION
+#
+###########################
+ALL_ARGS_AS_A_STRING=$*
 
-case $INSTALL_SCOPE in
-  self ) install_under_my_home
+case $ALL_ARGS_AS_A_STRING in
+  clean\ self )
+    clean $HOME
     ;;
-  all[-_]users ) install_for_all_users
+  clean\ all[-_]users )
+    clean_all
     ;;
-  * ) echo "Usage:  ./installer.sh all_users|self"
+  self )
+    install_under_my_home
+    ;;
+  all[-_]users )
+    install_for_all_users
+    ;;
+  * )
+    echo "Usage:  ./installer.sh [clean] all_users|self"
     exit 1
-    ;;
 esac
