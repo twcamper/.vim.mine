@@ -10,10 +10,9 @@
 "                       is not a feature we can test for with has(), however, so we use
 "                       'cindent' as an expedient.
 if filereadable(expand("~/.vim/janus/vim/vimrc")) && has("cindent")
-    " the janus vimrc sources in ~/.vimrc.after,
-    " which in turn sources in ~/.vim.mine/common/settings.vim
-    source ~/.vim/janus/vim/vimrc
-  endif
+  " the janus vimrc sources in ~/.vimrc.after,
+  " which in turn sources in ~/.vim.mine/common/settings.vim
+  source ~/.vim/janus/vim/vimrc
 else
   " No janus, so we must get our settings without any
   " ~/.vimrc.after or /etc/vim/vimrc.local

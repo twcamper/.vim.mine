@@ -1,6 +1,5 @@
 #! /usr/bin/env bash
 
-LOCAL_TARGETS=".vimrc .vimrc.before .vimrc.after .gvimrc .gvimrc.before .gvimrc.after"
 
 has_janus()
 {
@@ -22,10 +21,12 @@ save_and_link()
   local TARGET=$1
   local LINK_NAME=$2
 
-  if [[ -e $LINK_NAME ]]; then
-    mv -v $LINK_NAME $LINK_NAME.old
+  # save off if it exists as a symlink or a regular file.
+  # the symlink might be broken or not.
+  if [[ -h $LINK_NAME || -e $LINK_NAME ]]; then
+    mv -fv $LINK_NAME $LINK_NAME.old
   fi
-  ln -sv $TARGET $LINK_NAME
+  ln -sfv $TARGET $LINK_NAME
 }
 
 install_to_my_home()
@@ -73,20 +74,25 @@ install_for_all_users()
     global_install
   fi
 }
+restore_janus()
+{
+  ln -sfv $HOME/.vim/janus/vim/vimrc $HOME/.vimrc
+  ln -sfv $HOME/.vim/janus/vim/gvimrc $HOME/.gvimrc
+}
 
 clean()
 {
-  local HOME=$1
-  for t in $LOCAL_TARGETS
+  local DIR=$1
+  for t in .vimrc .vimrc.before .vimrc.after .gvimrc.before .gvimrc.after vimrc gvimrc vimrc.local gvimrc.local
   do
-    path=$HOME/$t
-    if [ -e $path ];then
+    path=$DIR/$t
+    if [[ -h "$path" ]];then
       if [ -e "$path.old" ];then
-        mv -v $path.old $path
+        mv -fv $path.old $path
       else
-        rm -v $path
+        rm -fv $path
       fi
-    fi
+  fi
   done
 }
 
@@ -115,8 +121,11 @@ case $ALL_ARGS_AS_A_STRING in
   all[-_]users )
     install_for_all_users
     ;;
+  restore[-_]janus )
+    restore_janus
+    ;;
   * )
     echo Usage:
-    echo "       $ ./installer.sh [clean] all_users|self"
+    echo "       $ ./installer.sh [clean] all_users|self|restore_janus"
     exit 1
 esac
