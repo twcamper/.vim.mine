@@ -31,6 +31,7 @@ set autowrite		" Automatically save before commands like :next and :make
 set autoread  " reload files edited by other processes
 set hlsearch    " hilight found text
 set nu          " line numbering on
+set list                " show nonprinting chars such as EOL
 set listchars+=eol:$
 set nowrap      " no line wrap
 set splitright  " vertical split windows open to the right
