@@ -17,24 +17,35 @@ is_mac()
   [[ `uname -s` = 'Darwin' ]]
 }
 
-install_under_my_home()
+save_and_link()
 {
-  save $HOME
+  local TARGET=$1
+  local LINK_NAME=$2
+
+  if [[ -e $LINK_NAME ]]; then
+    mv -v $LINK_NAME $LINK_NAME.old
+  fi
+  ln -sv $TARGET $LINK_NAME
+}
+
+install_to_my_home()
+{
   if is_linux;then
     if has_janus;then
-      ln -s $HOME/.vim.mine/linux/.vimrc $HOME/.vimrc
-      ln -s $HOME/.vim.mine/linux/.vimrc.after $HOME/.vimrc.after
-      ln -s $HOME/.vim.mine/linux/.gvimrc.after $HOME/.gvimrc.after
+      save_and_link $HOME/.vim.mine/linux/.vimrc $HOME/.vimrc
+      save_and_link $HOME/.vim.mine/linux/.vimrc.after $HOME/.vimrc.after
+      save_and_link $HOME/.vim.mine/linux/.gvimrc.after $HOME/.gvimrc.after
+      # link $HOME/.vim.mine/.janus as DIR
     else
-      ln -s $HOME/.vim.mine/common/settings.vim $HOME/.vimrc
-      ln -s $HOME/.vim.mine/linux/gvim.settings.vim $HOME/.gvimrc
+      save_and_link $HOME/.vim.mine/common/settings.vim $HOME/.vimrc
+      save_and_link $HOME/.vim.mine/linux/gvim.settings.vim $HOME/.gvimrc
     fi
   fi
   if is_mac;then
     if has_janus;then
-      ln -s $HOME/.vim.mine/mac/.vimrc.after $HOME/.vimrc.after
+      save_and_link $HOME/.vim.mine/mac/.vimrc.after $HOME/.vimrc.after
     else
-      ln -s $HOME/.vim.mine/mac/.vimrc $HOME/.vimrc
+      save_and_link $HOME/.vim.mine/mac/.vimrc $HOME/.vimrc
     fi
   fi
 }
@@ -42,40 +53,25 @@ install_under_my_home()
 global_install()
 {
   if is_linux;then
-    # save ???
-    sudo ln -s $HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
-    sudo ln -s $HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
+    sudo save_and_link $HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
+    sudo save_and_link $HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
   fi
   if is_mac;then
-    # save ???
-    sudo ln -s $HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
+    sudo save_and_link $HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
   fi
 }
 
 install_for_all_users()
 {
   return 13
-  # global_save  # ???
   if has_janus;then
     echo 'We have Janus!'
-    # 1 - install_under_my_home
-    # 2 - make symlinks for root  -- do we save here?
-    # 3 - make symlinks and chown them for /home/everbody-else  -- do we save here?
+    # 1 - install_to_my_home
+    # 2 - make symlinks for root
+    # 3 - make symlinks and chown them for /home/everbody-else
   else
     global_install
   fi
-}
-
-save()
-{
-  local HOME=$1
-  for t in $LOCAL_TARGETS
-  do
-    path=$HOME/$t
-    if [ -e "$path" ];then
-      mv -v $path $path.old
-    fi
-  done
 }
 
 clean()
@@ -114,7 +110,7 @@ case $ALL_ARGS_AS_A_STRING in
     clean_all
     ;;
   self )
-    install_under_my_home
+    install_to_my_home
     ;;
   all[-_]users )
     install_for_all_users
