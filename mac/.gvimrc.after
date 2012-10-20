@@ -1,0 +1,12 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" As long as there are no Janus Specific settings here
+" (c.f. the linux version), this file works with or without
+" janus, linked as either ~/.gvimrc.after or ~/.gvimrc.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if filereadable(expand("~/.vim.mine/common/gvim.settings.vim"))
+  source ~/.vim.mine/common/gvim.settings.vim
+endif
+
+if filereadable(expand("~/.vim.mine/mac/gvim.settings.vim"))
+  source ~/.vim.mine/mac/gvim.settings.vim
+endif

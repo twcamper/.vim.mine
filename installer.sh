@@ -45,8 +45,10 @@ install_to_my_home()
   if is_mac;then
     if has_janus;then
       save_and_link $HOME/.vim.mine/mac/.vimrc.after $HOME/.vimrc.after
+      save_and_link $HOME/.vim.mine/mac/.gvimrc.after $HOME/.gvimrc.after
     else
       save_and_link $HOME/.vim.mine/mac/.vimrc $HOME/.vimrc
+      save_and_link $HOME/.vim.mine/mac/.gvimrc.after $HOME/.gvimrc
     fi
   fi
 }

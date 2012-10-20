@@ -3,8 +3,9 @@
 " or sourced into ~/.gvimrc.after if we have janus installed
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" turn off toolbar
-set guioptions-=T
+if filereadable(expand("~/.vim.mine/common/gvim.settings.vim"))
+  source ~/.vim.mine/common/gvim.settings.vim
+endif
 
 " work around linux gui F11 problem by making it a nice safe refresh
 "

@@ -3,7 +3,7 @@
 " It modifies settings to plugins provided by janus.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""
 if filereadable(expand("~/.vim.mine/linux/gvim.settings.vim"))
-  source ~/.vim.mine/linux/gvim.common/settings.vim
+  source ~/.vim.mine/linux/gvim.settings.vim
 endif
 
 " remap command key
