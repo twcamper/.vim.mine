@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 
+USER_NAME_PATTERN="[^\/]+$"
 
 has_janus()
 {
@@ -31,16 +32,30 @@ save_and_link()
 
 make_swap_dirs()
 {
-  if [[ ! -d $1/.vim.local/_swap ]]; then
-    mkdir -vp $1/.vim.local/_swap
+  USER=`echo $1 | grep -oE $USER_NAME_PATTERN`
+  SWAP=$1/.vim.local/_swap
+  BACKUP=$1/.vim.local/_backup
+  if [[ ! -d $SWAP ]]; then
+    mkdir -vp $SWAP
+    chown -c $USER:$USER $SWAP
   fi
-  if [[ ! -d $1/.vim.local/_backup ]]; then
-    mkdir -vp $1/.vim.local/_backup
+  if [[ ! -d  $BACKUP ]]; then
+    mkdir -vp $BACKUP
+    chown -c $USER:$USER $BACKUP
   fi
+}
+
+make_swap_dirs_for_everybody()
+{
+  make_swap_dirs $HOME  # root
+  for user in `ls /home`; do
+    make_swap_dirs /home/$user
+  done
 }
 
 install_to_my_home()
 {
+  local HOME=$1
   make_swap_dirs $HOME
   if is_linux;then
     if has_janus;then
@@ -66,26 +81,28 @@ install_to_my_home()
 
 global_install()
 {
+  local HOME=$1
   if is_linux;then
     save_and_link $HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
     save_and_link $HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
   fi
   if is_mac;then
     save_and_link $HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
+    save_and_link $HOME/.vim.mine/mac/.gvimrc.after $HOME/gvimrc.local
   fi
 }
 
 install_for_all_users()
 {
-  return 13
   if has_janus;then
     echo 'We have Janus!'
-    # 1 - install_to_my_home
+    # 1 - install_to_my_home $1
     # 2 - make symlinks for root
     # 3 - make symlinks and chown them for /home/everbody-else
   else
-    global_install
+    global_install $1
   fi
+  make_swap_dirs_for_everybody
 }
 restore_janus()
 {
@@ -142,34 +159,52 @@ clean()
 
 clean_all()
 {
-  echo clean global
+  clean $HOME  # root
+  clean /etc/vim  # and for the mac???
+  for user in `ls /home`; do
+    clean /home/$user
+  done
 }
 
-###########################
-#
-# EXECUTE AN ACTION
-#
-###########################
 ALL_ARGS_AS_A_STRING=$*
+THIS_SCRIPT_FILE=$0
 
-case $ALL_ARGS_AS_A_STRING in
-  clean\ self )
-    clean $HOME
-    ;;
-  clean\ all[-_]users )
-    clean_all
-    ;;
-  self )
-    install_to_my_home
-    ;;
-  all[-_]users )
-    install_for_all_users
-    ;;
-  restore[-_]janus )
-    restore_janus
-    ;;
-  * )
-    echo Usage:
-    echo "       $ ./installer.sh [clean] all_users|self|restore_janus"
-    exit 1
-esac
+if [[ `id -u` == 0 ]]; then
+  #######################################################
+  #
+  # RUN FUNCTION (SUB-ROUTINE) AS ROOT
+  #
+  # '$@' is all arguments, i.e., the function name ($1)
+  #       and any subsequent args ($2, etc)
+  #
+  # This is called from a 'sudo' call below.
+  #######################################################
+  $@
+else
+  ###########################
+  #
+  # VALIDATE AND RUN USER CLI COMMAND
+  #
+  ###########################
+  case $ALL_ARGS_AS_A_STRING in
+    clean\ self )
+      clean $HOME
+      ;;
+    clean\ all[-_]users )
+      sudo $THIS_SCRIPT_FILE clean_all
+      ;;
+    self )
+      install_to_my_home $HOME
+      ;;
+    all[-_]users )
+      sudo $THIS_SCRIPT_FILE install_for_all_users $HOME
+      ;;
+    restore[-_]janus )
+      restore_janus
+      ;;
+    * )
+      echo Usage:
+      echo "       $ $THIS_SCRIPT_FILE [clean] all_users|self|restore_janus"
+      exit 1
+  esac
+fi
