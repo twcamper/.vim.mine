@@ -54,11 +54,11 @@ install_to_my_home()
 global_install()
 {
   if is_linux;then
-    sudo save_and_link $HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
-    sudo save_and_link $HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
+    save_and_link $HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
+    save_and_link $HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
   fi
   if is_mac;then
-    sudo save_and_link $HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
+    save_and_link $HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
   fi
 }
 
@@ -76,8 +76,36 @@ install_for_all_users()
 }
 restore_janus()
 {
-  ln -sfv $HOME/.vim/janus/vim/vimrc $HOME/.vimrc
-  ln -sfv $HOME/.vim/janus/vim/gvimrc $HOME/.gvimrc
+  if has_janus;then
+    ln -sfv $HOME/.vim/janus/vim/vimrc $HOME/.vimrc
+    ln -sfv $HOME/.vim/janus/vim/gvimrc $HOME/.gvimrc
+  fi
+}
+
+restore_or_remove()
+{
+  if [ -e "$1.old" ];then
+    mv -fv $1.old $1
+  else
+    rm -fv $1
+  fi
+}
+
+clean_special_cases()
+{
+  local DIR=$1
+  if ! has_janus ; then
+    local GVIMRC=$DIR/.gvimrc
+    if [[ -h $GVIMRC ]]; then
+      restore_or_remove $GVIMRC
+    fi
+    local OLD=$GVIMRC.old
+    if [[ -h $OLD ]]; then
+      if ls -l $OLD | grep -e '.vim/janus/vim/gvimrc$'; then
+	      rm -fv $OLD
+      fi
+    fi
+  fi
 }
 
 clean()
@@ -87,13 +115,11 @@ clean()
   do
     path=$DIR/$t
     if [[ -h "$path" ]];then
-      if [ -e "$path.old" ];then
-        mv -fv $path.old $path
-      else
-        rm -fv $path
-      fi
-  fi
+      restore_or_remove $path
+    fi
   done
+
+  clean_special_cases $DIR
 }
 
 clean_all()
