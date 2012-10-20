@@ -38,6 +38,8 @@ set splitright  " vertical split windows open to the right
 set autoindent
 set smartindent
 set t_Co=256    " terminal colors
+set directory=~/.vim.local/_swap
+set backupdir=~/.vim.local/_backup
 
 " guard for vim.tiny
 if has("cindent")

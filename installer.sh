@@ -29,8 +29,19 @@ save_and_link()
   ln -sfv $TARGET $LINK_NAME
 }
 
+make_swap_dirs()
+{
+  if [[ ! -d $1/.vim.local/_swap ]]; then
+    mkdir -vp $1/.vim.local/_swap
+  fi
+  if [[ ! -d $1/.vim.local/_backup ]]; then
+    mkdir -vp $1/.vim.local/_backup
+  fi
+}
+
 install_to_my_home()
 {
+  make_swap_dirs $HOME
   if is_linux;then
     if has_janus;then
       save_and_link $HOME/.vim.mine/linux/.vimrc $HOME/.vimrc
@@ -96,6 +107,8 @@ restore_or_remove()
 clean_special_cases()
 {
   local DIR=$1
+
+  # ~/.gvimrc when there is no janus
   if ! has_janus ; then
     local GVIMRC=$DIR/.gvimrc
     if [[ -h $GVIMRC ]]; then
@@ -104,10 +117,13 @@ clean_special_cases()
     local OLD=$GVIMRC.old
     if [[ -h $OLD ]]; then
       if ls -l $OLD | grep -e '.vim/janus/vim/gvimrc$'; then
-	      rm -fv $OLD
+        rm -fv $OLD
       fi
     fi
   fi
+
+  # swap dirs
+  rm -rvf $DIR/.vim.local
 }
 
 clean()
