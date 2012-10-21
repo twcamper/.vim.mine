@@ -1,7 +1,5 @@
 #! /usr/bin/env bash
 
-USER_NAME_PATTERN="[^\/]+$"
-
 has_janus()
 {
   [[ -e $HOME/.vim/janus/vim/vimrc ]]
@@ -30,9 +28,21 @@ save_and_link()
   ln -sfv $TARGET $LINK_NAME
 }
 
+save_and_link_dir()
+{
+  local TARGET=$1
+  local LINK_DIR=$2
+  local LINK_NAME=$LINK_DIR/`basename $TARGET`
+  if [[ -d $LINK_NAME ]]; then
+    cp -rv $LINK_NAME $LINK_NAME.old
+    rm -rvf $LINK_NAME
+  fi
+  ln -sfvt $LINK_DIR $TARGET
+}
+
 make_swap_dirs()
 {
-  USER=`echo $1 | grep -oE $USER_NAME_PATTERN`
+  USER=`basename $1`
   SWAP=$1/.vim.local/_swap
   BACKUP=$1/.vim.local/_backup
   if [[ ! -d $SWAP ]]; then
@@ -59,12 +69,15 @@ install_to_my_home()
   make_swap_dirs $HOME
 
   if has_janus;then
+    # The janus install makes these 2 links.
+    # As is a development and testing convenience, start off by making sure they are intact.$
+    # It's useless but doesn't hurt anything during normal installation runs.$
     ln -sfv $HOME/.vim/janus/vim/vimrc $HOME/.vimrc
     ln -sfv $HOME/.vim/janus/vim/gvimrc $HOME/.gvimrc
 
-    if [[ -d $HOME/.vim.mine/.janus ]]; then
-      ln -sfv $HOME/.vim.mine/.janus $HOME/.janus
-    fi
+    # ~/.janus
+    save_and_link_dir $HOME/.vim.mine/.janus $HOME
+
     if is_linux;then
       save_and_link $HOME/.vim.mine/linux/.vimrc $HOME/.vimrc
       save_and_link $HOME/.vim.mine/linux/.vimrc.after $HOME/.vimrc.after
@@ -112,15 +125,38 @@ install_for_all_users()
   fi
   make_swap_dirs_for_everybody
 }
+
 restore_or_remove()
 {
   if [ -e "$1.old" ];then
     mv -fv $1.old $1
   else
-    rm -fv $1
+    if [[ -h $1 ]]; then
+      rm -fv $1
+    else
+      echo Not removing "$1" because it is not a symlink
+    fi
   fi
 }
 
+restore_or_remove_dir()
+{
+  local DIR=$1
+  if [[ -d $DIR ]]; then
+    if [[ -h $DIR ]]; then
+      rm -rfv $DIR
+      if [[ -d "$DIR.old" ]]; then
+        mv -fv $DIR.old $DIR
+      fi
+    else
+      echo Not removing "$DIR" because it is not a symlink
+    fi
+  else
+    if [[ -e $DIR ]]; then
+      echo $DIR is not a dir
+    fi
+  fi
+}
 clean_special_cases()
 {
   local DIR=$1
@@ -141,6 +177,9 @@ clean_special_cases()
 
   # swap dirs
   rm -rvf $DIR/.vim.local
+
+  # ~/.janus
+  restore_or_remove_dir $DIR/.janus
 }
 
 clean()
