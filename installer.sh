@@ -69,11 +69,8 @@ install_to_my_home()
   make_swap_dirs $HOME
 
   if has_janus;then
-    # The janus install makes these 2 links.
-    # As is a development and testing convenience, start off by making sure they are intact.$
-    # It's useless but doesn't hurt anything during normal installation runs.$
-    ln -sfv $HOME/.vim/janus/vim/vimrc $HOME/.vimrc
-    ln -sfv $HOME/.vim/janus/vim/gvimrc $HOME/.gvimrc
+    # ~/.gvimrc should be present but let's make sure!
+    save_and_link $HOME/.vim/janus/vim/gvimrc $HOME/.gvimrc
 
     # ~/.janus
     save_and_link_dir $HOME/.vim.mine/.janus $HOME
@@ -84,6 +81,8 @@ install_to_my_home()
       save_and_link $HOME/.vim.mine/linux/.gvimrc.after $HOME/.gvimrc.after
     fi
     if is_mac;then
+      # ~/.vimrc should be present but let's make sure!
+      save_and_link $HOME/.vim/janus/vim/vimrc $HOME/.vimrc
       save_and_link $HOME/.vim.mine/mac/.vimrc.after $HOME/.vimrc.after
       save_and_link $HOME/.vim.mine/mac/.gvimrc.after $HOME/.gvimrc.after
     fi
@@ -161,8 +160,8 @@ clean_special_cases()
 {
   local DIR=$1
 
-  # ~/.gvimrc when there is no janus
   if ! has_janus ; then
+    # ~/.gvimrc when there is no janus
     local GVIMRC=$DIR/.gvimrc
     if [[ -h $GVIMRC ]]; then
       restore_or_remove $GVIMRC
@@ -205,6 +204,12 @@ clean_all()
   done
 }
 
+restore_janus_links()
+{
+  ln -sfv $HOME/.vim/janus/vim/vimrc $HOME/.vimrc
+  ln -sfv $HOME/.vim/janus/vim/gvimrc $HOME/.gvimrc
+}
+
 ALL_ARGS_AS_A_STRING=$*
 THIS_SCRIPT_FILE=$0
 
@@ -238,9 +243,12 @@ else
     all[-_]users )
       sudo $THIS_SCRIPT_FILE install_for_all_users $HOME
       ;;
+    restore[-_]janus )
+      restore_janus_links
+      ;;
     * )
       echo Usage:
-      echo "       $ $THIS_SCRIPT_FILE [clean] all_users|self"
+      echo "       $ $THIS_SCRIPT_FILE [clean] all_users|self|restore_janus"
       exit 1
   esac
 fi
