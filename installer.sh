@@ -34,8 +34,7 @@ save_and_link_dir()
   local LINK_DIR=$2
   local LINK_NAME=$LINK_DIR/`basename $TARGET`
   if [[ -d $LINK_NAME ]]; then
-    cp -rv $LINK_NAME $LINK_NAME.old
-    rm -rvf $LINK_NAME
+    mv -fv $LINK_NAME $LINK_NAME.old
   fi
   ln -sfvt $LINK_DIR $TARGET
 }
@@ -197,10 +196,21 @@ clean()
 
 clean_all()
 {
+  local MAIN_USER=`basename $1`
   clean $HOME  # root
   clean /etc/vim  # and for the mac???
   for user in `ls /home`; do
     clean /home/$user
+  done
+
+  # .vim dir
+  restore_or_remove_dir /root/.vim
+
+  if is_linux; then local USER_HOME=/home; fi
+  if is_mac; then local USER_HOME=/Users; fi
+
+  for user in `ls /home | grep -v $MAIN_USER`; do
+    restore_or_remove_dir $USER_HOME/$user/.vim
   done
 }
 
@@ -235,7 +245,7 @@ else
       clean $HOME
       ;;
     clean\ all[-_]users )
-      sudo $THIS_SCRIPT_FILE clean_all
+      sudo $THIS_SCRIPT_FILE clean_all $HOME
       ;;
     self )
       install_to_my_home $HOME
