@@ -57,22 +57,29 @@ install_to_my_home()
 {
   local HOME=$1
   make_swap_dirs $HOME
-  if is_linux;then
-    if has_janus;then
+
+  if has_janus;then
+    ln -sfv $HOME/.vim/janus/vim/vimrc $HOME/.vimrc
+    ln -sfv $HOME/.vim/janus/vim/gvimrc $HOME/.gvimrc
+
+    if [[ -d $HOME/.vim.mine/.janus ]]; then
+      ln -sfv $HOME/.vim.mine/.janus $HOME/.janus
+    fi
+    if is_linux;then
       save_and_link $HOME/.vim.mine/linux/.vimrc $HOME/.vimrc
       save_and_link $HOME/.vim.mine/linux/.vimrc.after $HOME/.vimrc.after
       save_and_link $HOME/.vim.mine/linux/.gvimrc.after $HOME/.gvimrc.after
-      # link $HOME/.vim.mine/.janus as DIR
-    else
+    fi
+    if is_mac;then
+      save_and_link $HOME/.vim.mine/mac/.vimrc.after $HOME/.vimrc.after
+      save_and_link $HOME/.vim.mine/mac/.gvimrc.after $HOME/.gvimrc.after
+    fi
+  else
+    if is_linux;then
       save_and_link $HOME/.vim.mine/common/settings.vim $HOME/.vimrc
       save_and_link $HOME/.vim.mine/linux/gvim.settings.vim $HOME/.gvimrc
     fi
-  fi
-  if is_mac;then
-    if has_janus;then
-      save_and_link $HOME/.vim.mine/mac/.vimrc.after $HOME/.vimrc.after
-      save_and_link $HOME/.vim.mine/mac/.gvimrc.after $HOME/.gvimrc.after
-    else
+    if is_mac;then
       save_and_link $HOME/.vim.mine/mac/.vimrc $HOME/.vimrc
       save_and_link $HOME/.vim.mine/mac/.gvimrc.after $HOME/.gvimrc
     fi
@@ -94,24 +101,17 @@ global_install()
 
 install_for_all_users()
 {
+  local MAIN_USER_HOME=$1
   if has_janus;then
     echo 'We have Janus!'
-    # 1 - install_to_my_home $1
+    install_to_my_home $MAIN_USER_HOME
     # 2 - make symlinks for root
     # 3 - make symlinks and chown them for /home/everbody-else
   else
-    global_install $1
+    global_install $MAIN_USER_HOME
   fi
   make_swap_dirs_for_everybody
 }
-restore_janus()
-{
-  if has_janus;then
-    ln -sfv $HOME/.vim/janus/vim/vimrc $HOME/.vimrc
-    ln -sfv $HOME/.vim/janus/vim/gvimrc $HOME/.gvimrc
-  fi
-}
-
 restore_or_remove()
 {
   if [ -e "$1.old" ];then
@@ -199,12 +199,18 @@ else
     all[-_]users )
       sudo $THIS_SCRIPT_FILE install_for_all_users $HOME
       ;;
-    restore[-_]janus )
-      restore_janus
-      ;;
     * )
       echo Usage:
-      echo "       $ $THIS_SCRIPT_FILE [clean] all_users|self|restore_janus"
+      echo "       $ $THIS_SCRIPT_FILE [clean] all_users|self"
       exit 1
   esac
 fi
+
+
+#Tasks
+
+#1 - link all users to main user
+#2 - global for mac
+#3 - revert/clean global for mac
+#4 - add -h .vim.mine to clean_special_cases
+#5 - deal with ~/.vim for root and everbody else (cleanup, setting to .old)
