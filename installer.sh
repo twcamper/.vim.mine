@@ -48,12 +48,12 @@ make_swap_dirs()
   BACKUP=$1/.vim.local/_backup
   if [[ ! -d $SWAP ]]; then
     mkdir -vp $SWAP
-    chown -c $USER:$USER $SWAP
   fi
   if [[ ! -d  $BACKUP ]]; then
     mkdir -vp $BACKUP
-    chown -c $USER:$USER $BACKUP
   fi
+  chown -cR $USER:$USER $1/.vim.local
+
 }
 
 make_swap_dirs_for_everybody()
@@ -116,8 +116,31 @@ global_install()
     save_and_link $MAIN_USER_HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
   fi
   if is_mac;then
-    save_and_link $MAIN_USER_HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
-    save_and_link $MAIN_USER_HOME/.vim.mine/mac/.gvimrc.after /usr/share/gvimrc.local
+    # make global config files that source {g,}vimrc.local
+    mkdir -p /etc/vim
+    cp /usr/share/vim/*vimrc /etc/vim/
+
+    tee -a /etc/vim/vimrc <<-EOF
+" Source a global configuration file if available
+if filereadable("/etc/vim/vimrc.local")
+  source /etc/vim/vimrc.local
+endif
+EOF
+
+    tee -a /etc/vim/gvimrc <<-EOF
+" Source a global configuration file if available
+if filereadable("/etc/vim/gvimrc.local")
+  source /etc/vim/gvimrc.local
+endif
+EOF
+
+    # link {g,}vimrc at default location to our new ones
+    save_and_link /etc/vim/vimrc /usr/share/vim/vimrc
+    save_and_link /etc/vim/gvimrc /usr/share/vim/gvimrc
+
+    # link {g,}vimrc.local to our settings
+    save_and_link $MAIN_USER_HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
+    save_and_link $MAIN_USER_HOME/.vim.mine/mac/.gvimrc.after /etc/vim/
   fi
 }
 
@@ -134,15 +157,23 @@ everybody_else()
 
 install_for_all_users()
 {
-  if has_janus;then
-    install_to_my_home
-    make_links_to_main_user /root
+  if is_linux; then
+    if has_janus;then
+      install_to_my_home
+      make_links_to_main_user /root
 
-    everybody_else make_links_to_main_user
-  else
+      everybody_else make_links_to_main_user
+    else
+      global_install
+    fi
+    make_swap_dirs_for_everybody
+  fi
+  if is_mac; then
+    if has_janus; then
+      install_to_my_home
+    fi
     global_install
   fi
-  make_swap_dirs_for_everybody
 }
 
 restore_or_remove()
@@ -219,16 +250,19 @@ clean()
 clean_all()
 {
   clean $HOME  # root
-  clean /etc/vim  # and for the mac???
+  clean /etc/vim
+  if is_mac; then clean /usr/share/vim; fi
   clean $MAIN_USER_HOME
   everybody_else clean
 
-  # .vim dir
-  restore_or_remove_dir /root/.vim
-  everybody_else restore_or_remove_dir /.vim
-  # .vim.mine
-  restore_or_remove_dir /root/.vim.mine
-  everybody_else restore_or_remove_dir /.vim.mine
+  if is_linux; then
+    # .vim dir
+    restore_or_remove_dir /root/.vim
+    everybody_else restore_or_remove_dir /.vim
+    # .vim.mine
+    restore_or_remove_dir /root/.vim.mine
+    everybody_else restore_or_remove_dir /.vim.mine
+  fi
 }
 
 restore_janus_links()
@@ -284,9 +318,3 @@ else
       exit 1
   esac
 fi
-
-
-#Tasks
-
-#2 - global for mac
-#3 - revert/clean global for mac
