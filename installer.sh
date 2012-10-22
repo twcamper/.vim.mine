@@ -2,7 +2,7 @@
 
 has_janus()
 {
-  [[ -e $HOME/.vim/janus/vim/vimrc ]]
+  [[ -e $MAIN_USER_HOME/.vim/janus/vim/vimrc ]]
 }
 
 is_linux()
@@ -34,6 +34,8 @@ save_and_link_dir()
   local LINK_DIR=$2
   local LINK_NAME=$LINK_DIR/`basename $TARGET`
   if [[ -d $LINK_NAME ]]; then
+    #cp -rv  $LINK_NAME $LINK_NAME.old
+    #rm -rvf $LINK_NAME
     mv -fv $LINK_NAME $LINK_NAME.old
   fi
   ln -sfvt $LINK_DIR $TARGET
@@ -56,15 +58,13 @@ make_swap_dirs()
 
 make_swap_dirs_for_everybody()
 {
-  make_swap_dirs $HOME  # root
-  for user in `ls /home`; do
-    make_swap_dirs /home/$user
-  done
+  make_swap_dirs /root
+  everybody_else make_swap_dirs
 }
 
 install_to_my_home()
 {
-  local HOME=$1
+  local HOME=$MAIN_USER_HOME
   make_swap_dirs $HOME
 
   if has_janus;then
@@ -96,30 +96,51 @@ install_to_my_home()
     fi
   fi
 }
+make_links_to_main_user()
+{
+  local USER_HOME=$1
+
+  save_and_link     $MAIN_USER_HOME/.vimrc        $USER_HOME/.vimrc
+  save_and_link     $MAIN_USER_HOME/.gvimrc       $USER_HOME/.gvimrc
+  save_and_link     $MAIN_USER_HOME/.vimrc.after  $USER_HOME/.vimrc.after
+  save_and_link     $MAIN_USER_HOME/.gvimrc.after $USER_HOME/.gvimrc.after
+  save_and_link_dir $MAIN_USER_HOME/.vim          $USER_HOME
+  save_and_link_dir $MAIN_USER_HOME/.vim.mine     $USER_HOME
+  save_and_link_dir $MAIN_USER_HOME/.janus        $USER_HOME
+}
 
 global_install()
 {
-  local HOME=$1
   if is_linux;then
-    save_and_link $HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
-    save_and_link $HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
+    save_and_link $MAIN_USER_HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
+    save_and_link $MAIN_USER_HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
   fi
   if is_mac;then
-    save_and_link $HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
-    save_and_link $HOME/.vim.mine/mac/.gvimrc.after $HOME/gvimrc.local
+    save_and_link $MAIN_USER_HOME/.vim.mine/common/settings.vim /usr/share/vim/vimrc.local
+    save_and_link $MAIN_USER_HOME/.vim.mine/mac/.gvimrc.after /usr/share/gvimrc.local
   fi
+}
+
+everybody_else()
+{
+  local FUNCTION=$1
+  local EXTRA_ARG=$2
+  if is_linux; then local USER_HOME=/home; fi
+  if is_mac; then local USER_HOME=/Users; fi
+  for user in `ls $USER_HOME | grep -v $MAIN_USER`; do
+    $FUNCTION $USER_HOME/$user$EXTRA_ARG
+  done
 }
 
 install_for_all_users()
 {
-  local MAIN_USER_HOME=$1
   if has_janus;then
-    echo 'We have Janus!'
-    install_to_my_home $MAIN_USER_HOME
-    # 2 - make symlinks for root
-    # 3 - make symlinks and chown them for /home/everbody-else
+    install_to_my_home
+    make_links_to_main_user /root
+
+    everybody_else make_links_to_main_user
   else
-    global_install $MAIN_USER_HOME
+    global_install
   fi
   make_swap_dirs_for_everybody
 }
@@ -178,12 +199,13 @@ clean_special_cases()
 
   # ~/.janus
   restore_or_remove_dir $DIR/.janus
+
 }
 
 clean()
 {
   local DIR=$1
-  for t in .vimrc .vimrc.before .vimrc.after .gvimrc.before .gvimrc.after vimrc gvimrc vimrc.local gvimrc.local
+  for t in .vimrc .gvimrc .vimrc.before .vimrc.after .gvimrc.before .gvimrc.after vimrc gvimrc vimrc.local gvimrc.local
   do
     path=$DIR/$t
     if [[ -h "$path" ]];then
@@ -196,22 +218,17 @@ clean()
 
 clean_all()
 {
-  local MAIN_USER=`basename $1`
   clean $HOME  # root
   clean /etc/vim  # and for the mac???
-  for user in `ls /home`; do
-    clean /home/$user
-  done
+  clean $MAIN_USER_HOME
+  everybody_else clean
 
   # .vim dir
   restore_or_remove_dir /root/.vim
-
-  if is_linux; then local USER_HOME=/home; fi
-  if is_mac; then local USER_HOME=/Users; fi
-
-  for user in `ls /home | grep -v $MAIN_USER`; do
-    restore_or_remove_dir $USER_HOME/$user/.vim
-  done
+  everybody_else restore_or_remove_dir /.vim
+  # .vim.mine
+  restore_or_remove_dir /root/.vim.mine
+  everybody_else restore_or_remove_dir /.vim.mine
 }
 
 restore_janus_links()
@@ -222,6 +239,11 @@ restore_janus_links()
 
 ALL_ARGS_AS_A_STRING=$*
 THIS_SCRIPT_FILE=$0
+SCRIPT_DIR="$( cd  "$( dirname $THIS_SCRIPT_FILE )" && pwd )"
+
+# the NON-ROOT home dir of the installing user, i.e., the runner of this script
+MAIN_USER_HOME=`echo $SCRIPT_DIR | grep -oE "^/(home|Users)/[^\/]+"`   # DO NOT RUN AS ROOT! pattern is for "/{home,Users}/username"
+MAIN_USER=`basename $MAIN_USER_HOME`
 
 if [[ `id -u` == 0 ]]; then
   #######################################################
@@ -248,7 +270,7 @@ else
       sudo $THIS_SCRIPT_FILE clean_all $HOME
       ;;
     self )
-      install_to_my_home $HOME
+      install_to_my_home
       ;;
     all[-_]users )
       sudo $THIS_SCRIPT_FILE install_for_all_users $HOME
@@ -266,8 +288,5 @@ fi
 
 #Tasks
 
-#1 - link all users to main user
 #2 - global for mac
 #3 - revert/clean global for mac
-#4 - add -h .vim.mine to clean_special_cases
-#5 - deal with ~/.vim for root and everbody else (cleanup, setting to .old)
