@@ -7,6 +7,7 @@ link_dir()
 
 install_to_my_home()
 {
+  make_swap_dirs $MAIN_USER_HOME
   if has_janus;then
     # ~/.gvimrc should be present but let's make sure!
     save_and_link $MAIN_USER_HOME/.vim/janus/vim/gvimrc $MAIN_USER_HOME/.gvimrc
@@ -25,10 +26,19 @@ install_to_my_home()
 
 install_for_all_users()
 {
+  echo "run '$ $THIS_SCRIPT_FILE self' on the mac"
+  exit 1
   install_to_my_home
 }
 
 clean_all()
 {
+  echo "run '$ $THIS_SCRIPT_FILE clean self' on the mac"
+  exit 1
   clean $MAIN_USER_HOME
+}
+
+make_swap_dirs()
+{
+  mkdir -vp $1/.vim.local/{_swap,_backup}
 }
