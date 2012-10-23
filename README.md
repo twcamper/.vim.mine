@@ -59,6 +59,5 @@ with or without janus.
       ./common/settings.after_janus.vim
       ./common/settings.vim
       ./linux/gvim.settings.vim
-      ./linux/settings.vim
       ./mac/settings.vim
 </pre>

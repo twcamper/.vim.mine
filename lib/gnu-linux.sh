@@ -20,13 +20,14 @@ install_to_my_home()
     save_and_link $MAIN_USER_HOME/.vim.mine/linux/.vimrc.after $MAIN_USER_HOME/.vimrc.after
     save_and_link $MAIN_USER_HOME/.vim.mine/linux/.gvimrc.after $MAIN_USER_HOME/.gvimrc.after
   else
-    save_and_link $MAIN_USER_HOME/.vim.mine/linux/settings.vim $MAIN_USER_HOME/.vimrc
+    save_and_link $MAIN_USER_HOME/.vim.mine/common/settings.vim $MAIN_USER_HOME/.vimrc
     save_and_link $MAIN_USER_HOME/.vim.mine/linux/gvim.settings.vim $MAIN_USER_HOME/.gvimrc
   fi
 }
 
 install_for_all_users()
 {
+  make_swap_dirs_for_everybody
   if has_janus;then
     install_to_my_home
     make_links_to_main_user $ROOT_HOME
@@ -54,9 +55,8 @@ clean_all()
 
 global_install()
 {
-  save_and_link $MAIN_USER_HOME/.vim.mine/linux/settings.vim /etc/vim/vimrc.local
+  save_and_link $MAIN_USER_HOME/.vim.mine/common/settings.vim /etc/vim/vimrc.local
   save_and_link $MAIN_USER_HOME/.vim.mine/linux/gvim.settings.vim /etc/vim/gvimrc.local
-  make_swap_dirs_for_everybody
 }
 
 make_links_to_main_user()
