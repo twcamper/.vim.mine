@@ -14,12 +14,12 @@ you wind up in Vim under <code>sudo</code>, for example.
 
 On the Mac, it just installs to your own home dir under
 <code>/Users</code>.  This works fine because <code>sudo</code>
-preserves your environment so get your own Vim settings anyway.
+preserves your environment so you get your own Vim settings anyway.
 
 Installation just involves making appropriate symlinks to files in your
 <code>~/.vim.mine</code> dir.
 
-## Local Install (Mac or Linux)
+### Local Install (Mac or Linux)
 
 To install to just your own home dir:
 
@@ -31,7 +31,7 @@ To install to just your own home dir:
   $ ./installer.sh clean self
 </pre>
 
-## Global install
+### Global install (GNU/Linux)
 
 To install to your own home dir, <code>/root</code>, and any other user
 under <code>/home</code>:
@@ -44,10 +44,10 @@ under <code>/home</code>:
   $ ./installer.sh clean all-users
 </pre>
 
-## Where to put your own settings and mappings
+### Where to put your own settings and mappings
 
 The settings and mappings in these files are either sourced in a
-<code>.vimrc.after</after> if janus is present, or just
+<code>.vimrc.after</code> if janus is present, or just
 <code>~/.vimrc</code> if it's not.  It's a little more involved than
 that, but it's not hard to figure out.  The point is, there's a place
 for your linux-only stuff, your mac-only stuff, gvim-only stuff, all
