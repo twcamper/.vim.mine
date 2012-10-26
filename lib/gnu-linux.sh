@@ -23,6 +23,7 @@ install_to_my_home()
     save_and_link $MAIN_USER_HOME/.vim.mine/common/settings.vim $MAIN_USER_HOME/.vimrc
     save_and_link $MAIN_USER_HOME/.vim.mine/linux/gvim.settings.vim $MAIN_USER_HOME/.gvimrc
   fi
+  bash_vim_alias_reminder
 }
 
 install_for_all_users()
@@ -35,6 +36,9 @@ install_for_all_users()
     everybody_else make_links_to_main_user
   else
     global_install
+  fi
+  if [[ $REMINDED != true ]]; then
+    bash_vim_alias_reminder
   fi
 }
 
@@ -93,4 +97,16 @@ make_swap_dirs_for_everybody()
   make_swap_dirs $ROOT_HOME
   make_swap_dirs $MAIN_USER_HOME
   everybody_else make_swap_dirs
+}
+
+bash_vim_alias_reminder()
+{
+  echo
+  echo "***********************************************************"
+  echo  Source $SCRIPT_DIR/linux/bash.vim_aliases.sh
+  echo  in ~/.bash_aliases or /etc/profilei
+  echo  if you want the Ctrl-s 'save' mapping in the linux console
+  echo "***********************************************************"
+  echo
+  REMINDED=true
 }

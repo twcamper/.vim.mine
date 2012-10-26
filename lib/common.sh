@@ -38,6 +38,10 @@ restore_or_remove_dir()
     if [[ -e $DIR ]]; then
       echo $DIR is not a dir
     fi
+    if [[ -h $DIR ]]; then
+      #broken symlink
+      rm -rfv $DIR
+    fi
   fi
 }
 
