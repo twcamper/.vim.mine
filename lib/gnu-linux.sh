@@ -110,3 +110,17 @@ bash_vim_alias_reminder()
   echo
   REMINDED=true
 }
+
+ubuntu_home_reset_reminder()
+{
+  if uname -a | grep -i Ubuntu; then
+    echo
+    echo "********************************************************************"
+    echo '$HOME' is reset to \"$HOME\" for user \"$USER\" on Ubuntu.
+    echo Therefore, just use \"$ $0 self\" because you\'ll get all your
+    echo vim settings when running as root anyway.
+    echo "********************************************************************"
+    echo
+    exit 1
+  fi
+}

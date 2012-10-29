@@ -24,6 +24,8 @@ esac
 if [[ `id -u` == 0 ]]; then
   ROOT_HOME=$HOME
 
+  ubuntu_home_reset_reminder
+
   #######################################################
   #
   # RUN FUNCTION (SUB-ROUTINE) AS ROOT
