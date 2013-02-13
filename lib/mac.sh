@@ -18,6 +18,7 @@ install_to_my_home()
     # ~/.vimrc should be present but let's make sure!
     save_and_link $MAIN_USER_HOME/.vim/janus/vim/vimrc $MAIN_USER_HOME/.vimrc
     save_and_link $MAIN_USER_HOME/.vim.mine/mac/.vimrc.after $MAIN_USER_HOME/.vimrc.after
+    save_and_link $MAIN_USER_HOME/.vim.mine/mac/.gvimrc.after $MAIN_USER_HOME/.gvimrc.after
   else
     save_and_link $MAIN_USER_HOME/.vim.mine/mac/.vimrc $MAIN_USER_HOME/.vimrc
     save_and_link $MAIN_USER_HOME/.vim.mine/mac/.gvimrc.after $MAIN_USER_HOME/.gvimrc
