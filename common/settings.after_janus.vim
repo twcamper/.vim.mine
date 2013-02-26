@@ -3,3 +3,5 @@
 "
 nnoremap <silent> <Leader>b :BuffergatorToggle<CR>
 let g:NERDSpaceDelims=1
+let g:syntastic_auto_jump=1
+let g:syntastic_auto_loc_list=1
