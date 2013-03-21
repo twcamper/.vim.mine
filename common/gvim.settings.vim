@@ -5,3 +5,4 @@
 
 " turn off toolbar
 set guioptions-=T
+let g:syntastic_enable_signs=1   " This is the default.  Overriding mac/settings.vim for the command line.
