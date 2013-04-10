@@ -51,6 +51,7 @@ else
       ;;
     self )
       install_to_my_home
+      bash_vim_alias_reminder
       ;;
     all[-_]users )
       sudo $THIS_SCRIPT_FILE install_for_all_users

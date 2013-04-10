@@ -8,7 +8,16 @@
 #
 vim-no-halted-output()
 {
-  local STTYOPTS="$(stty --save)"  # save current options
+  # save current options
+  case `uname -s` in
+    Linux )
+      local STTYOPTS="$(stty --save)"
+      ;;
+    Darwin )
+      local STTYOPTS="$(stty -g)"
+      ;;
+  esac
+
   stty stop '' -ixoff              # disable output interuption
   command "$@"                     # call version of vim with any args
   stty "$STTYOPTS"                 # restore normal tty behavior after we've left vim
