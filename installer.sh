@@ -9,6 +9,7 @@ SCRIPT_DIR="$( cd  "$( dirname $THIS_SCRIPT_FILE )" && pwd )"
 MAIN_USER_HOME=`echo $SCRIPT_DIR | grep -oE "^/(home|Users)/[^\/]+"`
 MAIN_USER=`basename $MAIN_USER_HOME`
 
+source $SCRIPT_DIR/lib/reminders.sh
 source $SCRIPT_DIR/lib/common.sh
 case `uname -s` in
   Linux )
