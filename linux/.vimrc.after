@@ -6,3 +6,7 @@ endif
 if filereadable(expand("~/.vim.mine/common/settings.after_janus.vim"))
   source ~/.vim.mine/common/settings.after_janus.vim
 endif
+
+if filereadable(expand("~/.vim.mine/linux/settings.vim"))
+  source ~/.vim.mine/linux/settings.vim
+endif
