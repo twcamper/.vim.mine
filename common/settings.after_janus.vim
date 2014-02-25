@@ -5,3 +5,9 @@ nnoremap <silent> <Leader>b :BuffergatorToggle<CR>
 let g:NERDSpaceDelims=1
 let g:syntastic_auto_jump=1
 let g:syntastic_auto_loc_list=1
+
+" stop annoying warning from popping up before it gives me a
+" chance to use the variable I just defined in Ruby
+let g:syntastic_quiet_messages = { "level": "warnings",
+      \ "regex": 'assigned but unused variable',
+      \ "file":  '\.rb$' }
