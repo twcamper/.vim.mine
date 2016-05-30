@@ -12,3 +12,6 @@ let g:syntastic_quiet_messages = { "level": "warnings",
       \ "regex": 'assigned but unused variable'}
       " \ "file":  '\.rb$' }  " I can't get the file name match to work, so
       " all errors were being filtered.
+
+" python version
+let g:syntastic_python_python_exec = system('which python3')
