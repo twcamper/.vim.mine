@@ -15,3 +15,6 @@ let g:syntastic_quiet_messages = { "level": "warnings",
 
 " python version
 let g:syntastic_python_python_exec = system('which python3')
+
+au FileType javascript setlocal tabstop=4 shiftwidth=4
+
