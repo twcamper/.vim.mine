@@ -17,4 +17,5 @@ let g:syntastic_quiet_messages = { "level": "warnings",
 let g:syntastic_python_python_exec = system('which python3')
 
 au FileType javascript setlocal tabstop=4 shiftwidth=4
-
+" don't hide quotes in json
+let g:vim_json_syntax_conceal = 0
