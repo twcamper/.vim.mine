@@ -40,6 +40,7 @@ set smartindent
 set t_Co=256    " terminal colors
 set directory=~/.vim.local/_swap
 set backupdir=~/.vim.local/_backup
+set iskeyword+=- " 'dash' shall be part of words
 
 " guard for vim.tiny
 if has("cindent")
